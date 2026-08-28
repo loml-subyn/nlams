@@ -39,7 +39,7 @@ class LandParcel(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "land_parcels"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, index=True)
+    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id", name="fk_parcel_project"), nullable=False, index=True)
     survey_number = Column(String(50), nullable=False)
     village_id = Column(UUID(as_uuid=True), ForeignKey("villages.id"), nullable=False, index=True)
     district_id = Column(UUID(as_uuid=True), ForeignKey("districts.id"), nullable=False, index=True)

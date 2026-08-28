@@ -15,6 +15,7 @@ class State(Base, TimestampMixin):
 
     districts = relationship("District", back_populates="state", lazy="selectin")
     users = relationship("User", back_populates="state", lazy="selectin")
+    projects = relationship("Project", back_populates="state", lazy="selectin")
 
 
 class District(Base, TimestampMixin):
@@ -28,6 +29,7 @@ class District(Base, TimestampMixin):
     state = relationship("State", back_populates="districts")
     villages = relationship("Village", back_populates="district", lazy="selectin")
     users = relationship("User", back_populates="district", lazy="selectin")
+    projects = relationship("Project", back_populates="district", lazy="selectin")
 
     __table_args__ = (UniqueConstraint("state_id", "name", name="uq_district_state_name"),)
 

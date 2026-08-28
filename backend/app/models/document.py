@@ -22,7 +22,7 @@ class Document(Base, TimestampMixin):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=True, index=True)
-    parcel_id = Column(UUID(as_uuid=True), ForeignKey("land_parcels.id"), nullable=True, index=True)
+    parcel_id = Column(UUID(as_uuid=True), ForeignKey("land_parcels.id", name="fk_doc_parcel"), nullable=True, index=True)
     uploaded_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
     doc_type = Column(SAEnum(DocType, name="doc_type_enum"), nullable=False)
     file_name = Column(String(500), nullable=False)
