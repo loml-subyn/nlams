@@ -30,9 +30,9 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     is_active = Column(Boolean, default=True, nullable=False)
     last_login_at = Column(DateTime(timezone=True), nullable=True)
 
-    role = relationship("Role", back_populates="users")
-    state = relationship("State", back_populates="users")
-    district = relationship("District", back_populates="users")
+    role = relationship("Role", back_populates="users", lazy="selectin")
+    state = relationship("State", back_populates="users", lazy="selectin")
+    district = relationship("District", back_populates="users", lazy="selectin")
 
     @property
     def role_name(self) -> str:

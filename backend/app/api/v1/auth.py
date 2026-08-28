@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from app.db.session import get_db
@@ -38,7 +39,9 @@ limiter = Limiter(key_func=get_remote_address)
 async def login(request: Request, login_data: LoginRequest, db: AsyncSession = Depends(get_db)):
     # request param is required by slowapi decorator
     result = await db.execute(
-        select(User).where(User.email == login_data.email, User.is_active == True)
+        select(User)
+        .options(selectinload(User.role), selectinload(User.state), selectinload(User.district))
+        .where(User.email == login_data.email, User.is_active == True)
     )
     user = result.scalar_one_or_none()
     if not user or not verify_password(login_data.password, user.password_hash):
@@ -90,7 +93,9 @@ async def refresh_token(request: RefreshRequest, db: AsyncSession = Depends(get_
 
     user_id = payload.get("sub")
     result = await db.execute(
-        select(User).where(User.id == uuid.UUID(user_id), User.is_active == True)
+        select(User)
+        .options(selectinload(User.role), selectinload(User.state), selectinload(User.district))
+        .where(User.id == uuid.UUID(user_id), User.is_active == True)
     )
     user = result.scalar_one_or_none()
     if not user:
