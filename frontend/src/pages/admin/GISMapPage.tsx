@@ -32,7 +32,18 @@ export default function GISMapPage() {
 
     const instance = new maplibregl.Map({
       container: mapContainer.current,
-      style: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      style: {
+        version: 8,
+        sources: {
+          'osm-raster': {
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            attribution: '© OpenStreetMap contributors',
+          },
+        },
+        layers: [{ id: 'osm-raster', type: 'raster', source: 'osm-raster' }],
+      },
       center: [79.0882, 21.1458],
       zoom: 5,
     });

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 import json
+import ast
 import uuid
 
 from app.db.session import get_db
@@ -51,7 +52,10 @@ async def get_single_parcel_geojson(
         try:
             geom = json.loads(parcel.geom) if isinstance(parcel.geom, str) else parcel.geom
         except (json.JSONDecodeError, TypeError):
-            geom = None
+            try:
+                geom = ast.literal_eval(parcel.geom) if isinstance(parcel.geom, str) else parcel.geom
+            except (ValueError, SyntaxError):
+                geom = None
 
     return {
         "type": "Feature",

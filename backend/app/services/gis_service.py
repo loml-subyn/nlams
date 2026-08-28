@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from typing import Optional
 import json
+import ast
 import uuid
 
 from app.models.land import LandParcel
@@ -83,7 +84,10 @@ async def build_geojson_featurecollection(
             try:
                 geom = json.loads(parcel.geom) if isinstance(parcel.geom, str) else parcel.geom
             except (json.JSONDecodeError, TypeError):
-                geom = None
+                try:
+                    geom = ast.literal_eval(parcel.geom) if isinstance(parcel.geom, str) else parcel.geom
+                except (ValueError, SyntaxError):
+                    geom = None
         if geom:
             features.append(
                 {

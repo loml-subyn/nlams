@@ -23,6 +23,8 @@ import ReportsPage from '../pages/admin/ReportsPage';
 import GISMapPage from '../pages/admin/GISMapPage';
 import NotificationsPage from '../pages/admin/NotificationsPage';
 import SettingsPage from '../pages/admin/Settings';
+import DatasetPage from '../pages/admin/DatasetPage';
+import CompensationReportPage from '../pages/admin/CompensationReportPage';
 
 // State
 import StateDashboard from '../pages/state/StateDashboard';
@@ -93,6 +95,8 @@ function AppRoutes() {
         <Route path="gis" element={<GISMapPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="dataset" element={<DatasetPage />} />
+        <Route path="compensation-report" element={<CompensationReportPage />} />
       </Route>
 
       {/* State */}
@@ -104,6 +108,8 @@ function AppRoutes() {
         <Route path="gis" element={<GISMapPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
+        <Route path="dataset" element={<DatasetPage />} />
+        <Route path="compensation-report" element={<CompensationReportPage />} />
       </Route>
 
       {/* District */}
