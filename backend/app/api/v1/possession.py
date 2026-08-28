@@ -95,9 +95,7 @@ async def get_project_possession_status(
     """Get possession completion percentage and status per parcel for a project."""
     # Get all parcels for this project
     parcels_result = await db.execute(
-        select(LandParcel).where(
-            LandParcel.project_id == project_id, LandParcel.is_deleted == False
-        )
+        select(LandParcel).where(LandParcel.project_id == project_id, not LandParcel.is_deleted)
     )
     parcels = parcels_result.scalars().all()
 

@@ -23,7 +23,7 @@ async def list_users(
     current_user: User = Depends(require_role(["super_admin"])),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(User).where(User.is_deleted == False)
+    query = select(User).where(not User.is_deleted)
     if role:
         query = query.join(Role).where(Role.name == role)
     if search:

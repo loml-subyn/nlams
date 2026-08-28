@@ -31,7 +31,7 @@ async def get_current_user(
     result = await db.execute(
         select(User)
         .options(selectinload(User.role), selectinload(User.state), selectinload(User.district))
-        .where(User.id == uuid.UUID(user_id), User.is_active == True)
+        .where(User.id == uuid.UUID(user_id), User.is_active)
     )
     user = result.scalar_one_or_none()
     if not user:

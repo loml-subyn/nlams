@@ -44,7 +44,6 @@ async def test_calculate_statutory_compensation_with_auth(super_admin_client: As
         pytest.skip("Database not available")
 
 
-
 @pytest.mark.asyncio
 async def test_staging_summary_requires_auth(client: AsyncClient):
     """Staging summary requires authentication."""
@@ -77,4 +76,3 @@ async def test_staging_parcels_pagination(super_admin_client: AsyncClient):
         assert "total" in data
     except Exception:
         pytest.skip("Database not available")
-

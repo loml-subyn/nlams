@@ -41,7 +41,7 @@ async def login(request: Request, login_data: LoginRequest, db: AsyncSession = D
     result = await db.execute(
         select(User)
         .options(selectinload(User.role), selectinload(User.state), selectinload(User.district))
-        .where(User.email == login_data.email, User.is_active == True)
+        .where(User.email == login_data.email, User.is_active)
     )
     user = result.scalar_one_or_none()
     if not user or not verify_password(login_data.password, user.password_hash):
@@ -95,7 +95,7 @@ async def refresh_token(request: RefreshRequest, db: AsyncSession = Depends(get_
     result = await db.execute(
         select(User)
         .options(selectinload(User.role), selectinload(User.state), selectinload(User.district))
-        .where(User.id == uuid.UUID(user_id), User.is_active == True)
+        .where(User.id == uuid.UUID(user_id), User.is_active)
     )
     user = result.scalar_one_or_none()
     if not user:

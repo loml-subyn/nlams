@@ -53,7 +53,9 @@ async def get_single_parcel_geojson(
             geom = json.loads(parcel.geom) if isinstance(parcel.geom, str) else parcel.geom
         except (json.JSONDecodeError, TypeError):
             try:
-                geom = ast.literal_eval(parcel.geom) if isinstance(parcel.geom, str) else parcel.geom
+                geom = (
+                    ast.literal_eval(parcel.geom) if isinstance(parcel.geom, str) else parcel.geom
+                )
             except (ValueError, SyntaxError):
                 geom = None
 

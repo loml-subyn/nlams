@@ -109,23 +109,27 @@ def parse_area_hectares(raw: Optional[str]) -> tuple[Optional[Decimal], Optional
     return value, None
 
 
-def parcel_dedupe_key(district: str, sub_district: str, village: str,
-                      survey_number: str) -> str:
+def parcel_dedupe_key(district: str, sub_district: str, village: str, survey_number: str) -> str:
     """Deterministic dedupe key for a parcel row: normalized location + normalized
     survey number."""
     parts = [normalize_text(x) or "" for x in (district, sub_district, village)]
     survey_norm = normalize_survey_number(survey_number) or ""
-    if len(survey_norm) % 2 == 0 and survey_norm[:len(survey_norm)//2] == survey_norm[len(survey_norm)//2:]:
-        survey_norm = survey_norm[:len(survey_norm)//2]
+    if (
+        len(survey_norm) % 2 == 0
+        and survey_norm[: len(survey_norm) // 2] == survey_norm[len(survey_norm) // 2 :]
+    ):
+        survey_norm = survey_norm[: len(survey_norm) // 2]
     parts.append(survey_norm)
     return "|".join(parts)
 
 
 def party_dedupe_key(source_sno: str, name: str, address: Optional[str]) -> str:
     """Deterministic dedupe key for a party row."""
-    parts = [normalize_text(source_sno) or "",
-             normalize_text(name) or "",
-             normalize_text(address) or ""]
+    parts = [
+        normalize_text(source_sno) or "",
+        normalize_text(name) or "",
+        normalize_text(address) or "",
+    ]
     return "|".join(parts)
 
 
@@ -147,13 +151,26 @@ def map_land_type(raw: Optional[str]) -> tuple[str, bool]:
     """Map workbook Land Type to the LandParcel.land_type vocabulary.
     Returns (canonical, mapped); unmapped values are preserved lowercased."""
     normalized = normalize_text(raw)
-    mapping = {"wet": "agricultural", "dry": "agricultural", "agricultural": "agricultural",
-               "residential": "residential", "commercial": "commercial",
-               "forest": "forest", "government": "govt", "govt": "govt"}
+    mapping = {
+        "wet": "agricultural",
+        "dry": "agricultural",
+        "agricultural": "agricultural",
+        "residential": "residential",
+        "commercial": "commercial",
+        "forest": "forest",
+        "government": "govt",
+        "govt": "govt",
+    }
     if not normalized:
         return "other", False
     if normalized in mapping:
-        return mapping[normalized], normalized in ("agricultural", "residential", "commercial", "forest", "govt")
+        return mapping[normalized], normalized in (
+            "agricultural",
+            "residential",
+            "commercial",
+            "forest",
+            "govt",
+        )
     return normalized, False
 
 

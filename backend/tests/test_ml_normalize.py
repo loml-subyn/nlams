@@ -19,7 +19,7 @@ from app.ml.normalize import (
 
 
 def test_cell_text_collapses_line_breaks():
-    assert cell_text('242\n२४२') == "242 २४२"
+    assert cell_text("242\n२४२") == "242 २४२"
     assert cell_text(None) is None
     assert cell_text("  spaced   out  ") == "spaced out"
 

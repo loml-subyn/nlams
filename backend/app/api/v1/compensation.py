@@ -318,4 +318,3 @@ async def calculate_statutory_compensation(
             f"Section 30(3): Additional Market Value calculated at 12% p.a. for {months:.0f} month period.",
         ],
     }
-

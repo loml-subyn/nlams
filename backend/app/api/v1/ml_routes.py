@@ -56,7 +56,7 @@ async def parcel_land_nature(
     result = await db.execute(
         select(LandParcel, func.count(LandOwner.id))
         .outerjoin(LandOwner, LandOwner.parcel_id == LandParcel.id)
-        .where(LandParcel.id == parcel_id, LandParcel.is_deleted == False)
+        .where(LandParcel.id == parcel_id, not LandParcel.is_deleted)
         .group_by(LandParcel.id)
     )
     row = result.first()
@@ -68,7 +68,9 @@ async def parcel_land_nature(
     if parcel.village_id:
         from app.models.state import Village
 
-        village = (await db.execute(select(Village).where(Village.id == parcel.village_id))).scalar_one_or_none()
+        village = (
+            await db.execute(select(Village).where(Village.id == parcel.village_id))
+        ).scalar_one_or_none()
         village_name = village.name if village else None
 
     try:
@@ -141,18 +143,26 @@ async def staging_summary(
     total_parties = (await db.execute(select(func.count(ImportedLandParty.id)))).scalar() or 0
     gov_parcels = (
         await db.execute(
-            select(func.count(ImportedLandDetail.id)).where(ImportedLandDetail.land_nature_label == "government")
+            select(func.count(ImportedLandDetail.id)).where(
+                ImportedLandDetail.land_nature_label == "government"
+            )
         )
     ).scalar() or 0
     pvt_parcels = (
         await db.execute(
-            select(func.count(ImportedLandDetail.id)).where(ImportedLandDetail.land_nature_label == "private")
+            select(func.count(ImportedLandDetail.id)).where(
+                ImportedLandDetail.land_nature_label == "private"
+            )
         )
     ).scalar() or 0
-    total_area = (await db.execute(select(func.sum(ImportedLandDetail.area_hectares)))).scalar() or 0
+    total_area = (
+        await db.execute(select(func.sum(ImportedLandDetail.area_hectares)))
+    ).scalar() or 0
 
     villages_res = await db.execute(
-        select(ImportedLandDetail.raw_village).distinct().where(ImportedLandDetail.raw_village.isnot(None))
+        select(ImportedLandDetail.raw_village)
+        .distinct()
+        .where(ImportedLandDetail.raw_village.isnot(None))
     )
     villages = [v[0] for v in villages_res.all() if v[0]]
 
@@ -206,26 +216,28 @@ async def list_staging_parcels(
 
     items = []
     for r in rows:
-        items.append({
-            "id": str(r.id),
-            "source_sno": r.source_sno,
-            "raw_district": r.raw_district,
-            "raw_sub_district": r.raw_sub_district,
-            "raw_village": r.raw_village,
-            "raw_survey_number": r.raw_survey_number,
-            "raw_area": r.raw_area,
-            "raw_land_type": r.raw_land_type,
-            "raw_land_nature": r.raw_land_nature,
-            "raw_land_category": r.raw_land_category,
-            "village_norm": r.village_norm,
-            "survey_number_norm": r.survey_number_norm,
-            "area_hectares": float(r.area_hectares) if r.area_hectares else None,
-            "land_type_mapped": r.land_type_mapped,
-            "ownership_status_mapped": r.ownership_status_mapped,
-            "land_nature_label": r.land_nature_label,
-            "party_count": r.party_count,
-            "created_at": r.created_at.isoformat() if r.created_at else None,
-        })
+        items.append(
+            {
+                "id": str(r.id),
+                "source_sno": r.source_sno,
+                "raw_district": r.raw_district,
+                "raw_sub_district": r.raw_sub_district,
+                "raw_village": r.raw_village,
+                "raw_survey_number": r.raw_survey_number,
+                "raw_area": r.raw_area,
+                "raw_land_type": r.raw_land_type,
+                "raw_land_nature": r.raw_land_nature,
+                "raw_land_category": r.raw_land_category,
+                "village_norm": r.village_norm,
+                "survey_number_norm": r.survey_number_norm,
+                "area_hectares": float(r.area_hectares) if r.area_hectares else None,
+                "land_type_mapped": r.land_type_mapped,
+                "ownership_status_mapped": r.ownership_status_mapped,
+                "land_nature_label": r.land_nature_label,
+                "party_count": r.party_count,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+            }
+        )
 
     return {
         "total": total,
@@ -243,7 +255,9 @@ async def get_staging_parcel_parties(
 ):
     from app.models.import_staging import ImportedLandDetail, ImportedLandParty
 
-    detail = (await db.execute(select(ImportedLandDetail).where(ImportedLandDetail.id == staging_id))).scalar_one_or_none()
+    detail = (
+        await db.execute(select(ImportedLandDetail).where(ImportedLandDetail.id == staging_id))
+    ).scalar_one_or_none()
     if not detail:
         raise HTTPException(status_code=404, detail="Staging record not found")
 
@@ -289,7 +303,9 @@ async def promote_staging_to_project(
         raise HTTPException(status_code=400, detail="project_id is required")
 
     project_id = uuid.UUID(project_id_str)
-    project = (await db.execute(select(Project).where(Project.id == project_id))).scalar_one_or_none()
+    project = (
+        await db.execute(select(Project).where(Project.id == project_id))
+    ).scalar_one_or_none()
     if not project:
         raise HTTPException(status_code=404, detail="Target project not found")
 
@@ -315,7 +331,9 @@ async def promote_staging_to_project(
 
     for sp in staging_parcels:
         # Resolve village
-        v_name = sp.village_norm or (sp.raw_village.split()[0] if sp.raw_village else "Default Village")
+        v_name = sp.village_norm or (
+            sp.raw_village.split()[0] if sp.raw_village else "Default Village"
+        )
         v_res = await db.execute(
             select(Village).where(
                 Village.district_id == district_id,
@@ -371,7 +389,9 @@ async def promote_staging_to_project(
         share_per_party = round(100.0 / max(1, len(parties)), 2)
 
         for p in parties:
-            clean_name = p.raw_name.split("\n")[0].strip() if p.raw_name else (p.name_norm or "Land Owner")
+            clean_name = (
+                p.raw_name.split("\n")[0].strip() if p.raw_name else (p.name_norm or "Land Owner")
+            )
             owner = LandOwner(
                 parcel_id=parcel.id,
                 full_name=clean_name[:200],
@@ -404,18 +424,28 @@ async def trigger_ingest(
 
     file_path = body.get("file_path") if body else None
     if not file_path:
-        default_file = Path("[bhoomirashi_gov_in_auth_revamp_sdet1_cshtml_project_id_54637]_features.xlsx")
+        default_file = Path(
+            "[bhoomirashi_gov_in_auth_revamp_sdet1_cshtml_project_id_54637]_features.xlsx"
+        )
         if not default_file.exists():
             # Check parent directories
-            for p in [Path("../[bhoomirashi_gov_in_auth_revamp_sdet1_cshtml_project_id_54637]_features.xlsx"),
-                      Path("/Users/shubhayan/Downloads/land-acquisition-management-system-main/[bhoomirashi_gov_in_auth_revamp_sdet1_cshtml_project_id_54637]_features.xlsx")]:
+            for p in [
+                Path(
+                    "../[bhoomirashi_gov_in_auth_revamp_sdet1_cshtml_project_id_54637]_features.xlsx"
+                ),
+                Path(
+                    "/Users/shubhayan/Downloads/land-acquisition-management-system-main/[bhoomirashi_gov_in_auth_revamp_sdet1_cshtml_project_id_54637]_features.xlsx"
+                ),
+            ]:
                 if p.exists():
                     default_file = p
                     break
         file_path = str(default_file)
 
     if not Path(file_path).exists():
-        raise HTTPException(status_code=404, detail=f"Bhoomi Rashi workbook not found at {file_path}")
+        raise HTTPException(
+            status_code=404, detail=f"Bhoomi Rashi workbook not found at {file_path}"
+        )
 
     try:
         report = await run_ingestion(db, file_path)
@@ -435,4 +465,3 @@ async def trigger_ingest(
     except Exception as e:
         logger.exception("Error ingesting Bhoomi Rashi workbook")
         raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
-

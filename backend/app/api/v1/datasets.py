@@ -44,7 +44,9 @@ def serialize_project(p: Project) -> dict:
         "priority": p.priority.value if hasattr(p.priority, "value") else str(p.priority),
         "current_stage": p.current_stage,
         "estimated_budget": float(p.estimated_budget) if p.estimated_budget else None,
-        "estimated_land_required_hectares": float(p.estimated_land_required_hectares) if p.estimated_land_required_hectares else None,
+        "estimated_land_required_hectares": float(p.estimated_land_required_hectares)
+        if p.estimated_land_required_hectares
+        else None,
         "created_at": p.created_at.isoformat() if p.created_at else None,
         "updated_at": p.updated_at.isoformat() if p.updated_at else None,
     }
@@ -56,8 +58,12 @@ def serialize_parcel(p: LandParcel) -> dict:
         "survey_number": p.survey_number,
         "area_hectares": float(p.area_hectares) if p.area_hectares else None,
         "land_type": p.land_type.value if hasattr(p.land_type, "value") else str(p.land_type),
-        "ownership_status": p.ownership_status.value if hasattr(p.ownership_status, "value") else str(p.ownership_status),
-        "verification_status": p.verification_status.value if hasattr(p.verification_status, "value") else str(p.verification_status),
+        "ownership_status": p.ownership_status.value
+        if hasattr(p.ownership_status, "value")
+        else str(p.ownership_status),
+        "verification_status": p.verification_status.value
+        if hasattr(p.verification_status, "value")
+        else str(p.verification_status),
         "has_geometry": bool(p.geom),
         "created_at": p.created_at.isoformat() if p.created_at else None,
     }
@@ -82,7 +88,9 @@ def serialize_compensation(c: Compensation) -> dict:
         "parcel_id": str(c.parcel_id),
         "market_value": float(c.market_value) if c.market_value else None,
         "solatium": float(c.solatium) if c.solatium else None,
-        "additional_compensation": float(c.additional_compensation) if c.additional_compensation else None,
+        "additional_compensation": float(c.additional_compensation)
+        if c.additional_compensation
+        else None,
         "total_award": float(c.total_award) if c.total_award else None,
         "status": c.status,
         "assessment_date": c.assessment_date.isoformat() if c.assessment_date else None,
@@ -154,7 +162,9 @@ def serialize_rr_family(f: RehabilitationFamily) -> dict:
         "displaced_status": f.displaced_status,
         "current_stage": f.current_stage,
         "progress_percentage": f.progress_percentage,
-        "monetary_benefit_amount": float(f.monetary_benefit_amount) if f.monetary_benefit_amount else None,
+        "monetary_benefit_amount": float(f.monetary_benefit_amount)
+        if f.monetary_benefit_amount
+        else None,
         "created_at": f.created_at.isoformat() if f.created_at else None,
     }
 
@@ -207,9 +217,7 @@ async def list_datasets(
         query = query.where(Project.name.ilike(f"%{search}%"))
         count_query = count_query.where(Project.name.ilike(f"%{search}%"))
     elif search and table == "users":
-        query = query.where(
-            User.full_name.ilike(f"%{search}%") | User.email.ilike(f"%{search}%")
-        )
+        query = query.where(User.full_name.ilike(f"%{search}%") | User.email.ilike(f"%{search}%"))
         count_query = count_query.where(
             User.full_name.ilike(f"%{search}%") | User.email.ilike(f"%{search}%")
         )

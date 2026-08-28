@@ -95,7 +95,9 @@ class Project(Base, TimestampMixin, SoftDeleteMixin):
     state_id = Column(UUID(as_uuid=True), ForeignKey("states.id"), nullable=False, index=True)
     district_id = Column(UUID(as_uuid=True), ForeignKey("districts.id"), nullable=True, index=True)
     description = Column(Text, nullable=True)
-    dpr_document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id", name="fk_project_dpr_doc"), nullable=True)
+    dpr_document_id = Column(
+        UUID(as_uuid=True), ForeignKey("documents.id", name="fk_project_dpr_doc"), nullable=True
+    )
     estimated_budget = Column(Numeric(18, 2), nullable=True)
     estimated_land_required_hectares = Column(Numeric(12, 3), nullable=True)
     priority = Column(

@@ -20,24 +20,22 @@ from app.schemas.dashboard import (
 
 async def get_national_dashboard(db: AsyncSession) -> NationalDashboardResponse:
     total_projects = (
-        await db.execute(select(func.count(Project.id)).where(Project.is_deleted == False))
+        await db.execute(select(func.count(Project.id)).where(not Project.is_deleted))
     ).scalar() or 0
     active_projects = (
         await db.execute(
-            select(func.count(Project.id)).where(
-                Project.is_deleted == False, Project.status == "active"
-            )
+            select(func.count(Project.id)).where(not Project.is_deleted, Project.status == "active")
         )
     ).scalar() or 0
     completed_projects = (
         await db.execute(
             select(func.count(Project.id)).where(
-                Project.is_deleted == False, Project.status == "completed"
+                not Project.is_deleted, Project.status == "completed"
             )
         )
     ).scalar() or 0
     total_parcels = (
-        await db.execute(select(func.count(LandParcel.id)).where(LandParcel.is_deleted == False))
+        await db.execute(select(func.count(LandParcel.id)).where(not LandParcel.is_deleted))
     ).scalar() or 0
     total_compensation = (
         await db.execute(select(func.coalesce(func.sum(Compensation.total_award), 0)))
@@ -130,9 +128,7 @@ async def get_national_dashboard(db: AsyncSession) -> NationalDashboardResponse:
     ]:
         count = (
             await db.execute(
-                select(func.count(Project.id)).where(
-                    Project.is_deleted == False, Project.status == s
-                )
+                select(func.count(Project.id)).where(not Project.is_deleted, Project.status == s)
             )
         ).scalar() or 0
         status_counts[s] = count
@@ -156,7 +152,7 @@ async def get_national_dashboard(db: AsyncSession) -> NationalDashboardResponse:
                     "value": (
                         await db.execute(
                             select(func.count(Project.id)).where(
-                                Project.is_deleted == False, Project.priority == "low"
+                                not Project.is_deleted, Project.priority == "low"
                             )
                         )
                     ).scalar()
@@ -167,7 +163,7 @@ async def get_national_dashboard(db: AsyncSession) -> NationalDashboardResponse:
                     "value": (
                         await db.execute(
                             select(func.count(Project.id)).where(
-                                Project.is_deleted == False, Project.priority == "medium"
+                                not Project.is_deleted, Project.priority == "medium"
                             )
                         )
                     ).scalar()
@@ -178,7 +174,7 @@ async def get_national_dashboard(db: AsyncSession) -> NationalDashboardResponse:
                     "value": (
                         await db.execute(
                             select(func.count(Project.id)).where(
-                                Project.is_deleted == False, Project.priority == "high"
+                                not Project.is_deleted, Project.priority == "high"
                             )
                         )
                     ).scalar()
@@ -189,7 +185,7 @@ async def get_national_dashboard(db: AsyncSession) -> NationalDashboardResponse:
                     "value": (
                         await db.execute(
                             select(func.count(Project.id)).where(
-                                Project.is_deleted == False, Project.priority == "critical"
+                                not Project.is_deleted, Project.priority == "critical"
                             )
                         )
                     ).scalar()
@@ -206,7 +202,7 @@ async def get_national_dashboard(db: AsyncSession) -> NationalDashboardResponse:
         sp_total = (
             await db.execute(
                 select(func.count(Project.id)).where(
-                    Project.state_id == state.id, Project.is_deleted == False
+                    Project.state_id == state.id, not Project.is_deleted
                 )
             )
         ).scalar() or 0
@@ -214,7 +210,7 @@ async def get_national_dashboard(db: AsyncSession) -> NationalDashboardResponse:
             await db.execute(
                 select(func.count(Project.id)).where(
                     Project.state_id == state.id,
-                    Project.is_deleted == False,
+                    not Project.is_deleted,
                     Project.status == "completed",
                 )
             )
@@ -238,7 +234,7 @@ async def get_state_dashboard(db: AsyncSession, state_id: uuid.UUID) -> StateDas
     total_projects = (
         await db.execute(
             select(func.count(Project.id)).where(
-                Project.state_id == state_id, Project.is_deleted == False
+                Project.state_id == state_id, not Project.is_deleted
             )
         )
     ).scalar() or 0
@@ -246,7 +242,7 @@ async def get_state_dashboard(db: AsyncSession, state_id: uuid.UUID) -> StateDas
         await db.execute(
             select(func.count(Project.id)).where(
                 Project.state_id == state_id,
-                Project.is_deleted == False,
+                not Project.is_deleted,
                 Project.status == "active",
             )
         )
@@ -254,7 +250,7 @@ async def get_state_dashboard(db: AsyncSession, state_id: uuid.UUID) -> StateDas
     total_parcels = (
         await db.execute(
             select(func.count(LandParcel.id)).where(
-                LandParcel.state_id == state_id, LandParcel.is_deleted == False
+                LandParcel.state_id == state_id, not LandParcel.is_deleted
             )
         )
     ).scalar() or 0
@@ -280,7 +276,7 @@ async def get_state_dashboard(db: AsyncSession, state_id: uuid.UUID) -> StateDas
         dp_total = (
             await db.execute(
                 select(func.count(Project.id)).where(
-                    Project.district_id == d.id, Project.is_deleted == False
+                    Project.district_id == d.id, not Project.is_deleted
                 )
             )
         ).scalar() or 0
@@ -301,14 +297,14 @@ async def get_district_dashboard(
     total_projects = (
         await db.execute(
             select(func.count(Project.id)).where(
-                Project.district_id == district_id, Project.is_deleted == False
+                Project.district_id == district_id, not Project.is_deleted
             )
         )
     ).scalar() or 0
     total_parcels = (
         await db.execute(
             select(func.count(LandParcel.id)).where(
-                LandParcel.district_id == district_id, LandParcel.is_deleted == False
+                LandParcel.district_id == district_id, not LandParcel.is_deleted
             )
         )
     ).scalar() or 0
@@ -324,7 +320,7 @@ async def get_district_dashboard(
 
     result = await db.execute(
         select(Project)
-        .where(Project.district_id == district_id, Project.is_deleted == False)
+        .where(Project.district_id == district_id, not Project.is_deleted)
         .order_by(Project.updated_at.desc())
         .limit(10)
     )

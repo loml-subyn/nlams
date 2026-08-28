@@ -151,4 +151,3 @@ class StatutoryCompensationBreakdown(BaseModel):
     total_statutory_award: float
     legal_act_reference: str = "Right to Fair Compensation and Transparency in Land Acquisition, Rehabilitation and Resettlement Act, 2013 (RFCTLARR)"
     statutory_notes: List[str] = []
-

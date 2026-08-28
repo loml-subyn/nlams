@@ -91,7 +91,9 @@ class IngestionReport:
     rejected_party: list = field(default_factory=list)
 
 
-def parse_workbook(path: str | Path) -> tuple[list[ParsedParcel], list[ParsedParty], IngestionReport]:
+def parse_workbook(
+    path: str | Path,
+) -> tuple[list[ParsedParcel], list[ParsedParty], IngestionReport]:
     """Parse and validate the workbook. Pure function (no DB, no writes)."""
     import openpyxl
 
@@ -193,7 +195,9 @@ def parse_workbook(path: str | Path) -> tuple[list[ParsedParcel], list[ParsedPar
         address = cell_text(row[3])
         if not sno or not name:
             report.party_rows_rejected += 1
-            report.rejected_party.append({"row": report.party_rows_seen, "reason": "missing Source S.No or Name"})
+            report.rejected_party.append(
+                {"row": report.party_rows_seen, "reason": "missing Source S.No or Name"}
+            )
             continue
         area_value, area_error = parse_area_hectares(raw_text(row[5]) if len(row) > 5 else None)
         if area_error and area_error != "missing area":
@@ -207,7 +211,9 @@ def parse_workbook(path: str | Path) -> tuple[list[ParsedParcel], list[ParsedPar
         seen_party_keys.add(key)
         if sno not in valid_snos:
             report.party_rows_unlinked += 1
-        party_type, party_type_ok = normalize_party_type(cell_text(row[4]) if len(row) > 4 else None)
+        party_type, party_type_ok = normalize_party_type(
+            cell_text(row[4]) if len(row) > 4 else None
+        )
         parties.append(
             ParsedParty(
                 source_sno=sno,
@@ -243,7 +249,9 @@ async def run_ingestion(db, path: str | Path) -> IngestionReport:
 
     source_file = report.source_file
     await db.execute(delete(ImportedLandParty).where(ImportedLandParty.source_file == source_file))
-    await db.execute(delete(ImportedLandDetail).where(ImportedLandDetail.source_file == source_file))
+    await db.execute(
+        delete(ImportedLandDetail).where(ImportedLandDetail.source_file == source_file)
+    )
 
     detail_ids: dict[str, object] = {}
     party_counts: dict[str, int] = {}
@@ -306,16 +314,23 @@ async def run_ingestion(db, path: str | Path) -> IngestionReport:
     await db.commit()
     logger.info(
         "Ingestion of %s complete: %d parcels, %d parties (%d rejected land rows, %d rejected party rows)",
-        source_file, report.land_rows_loaded, report.party_rows_loaded,
-        report.land_rows_rejected, report.party_rows_rejected,
+        source_file,
+        report.land_rows_loaded,
+        report.party_rows_loaded,
+        report.land_rows_rejected,
+        report.party_rows_rejected,
     )
     return report
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Ingest a BhoomiRashi workbook into NLAMS staging tables")
+    parser = argparse.ArgumentParser(
+        description="Ingest a BhoomiRashi workbook into NLAMS staging tables"
+    )
     parser.add_argument("workbook", help="Path to the XLSX workbook")
-    parser.add_argument("--db-url", default=None, help="Async database URL (defaults to app settings)")
+    parser.add_argument(
+        "--db-url", default=None, help="Async database URL (defaults to app settings)"
+    )
     args = parser.parse_args()
 
     import json

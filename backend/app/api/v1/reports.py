@@ -28,7 +28,7 @@ async def generate_mis_report(
     current_user: User = Depends(require_role(["super_admin", "state_authority"])),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(Project).where(Project.is_deleted == False)
+    query = select(Project).where(not Project.is_deleted)
     if state_id:
         query = query.where(Project.state_id == state_id)
     if district_id:
@@ -179,7 +179,7 @@ async def generate_gis_parcels_report(
     """CSV export of land parcel inventory with verification status and area details."""
     query = (
         select(LandParcel)
-        .where(LandParcel.is_deleted == False)
+        .where(not LandParcel.is_deleted)
         .options(
             selectinload(LandParcel.village),
             selectinload(LandParcel.district),

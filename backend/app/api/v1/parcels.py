@@ -76,8 +76,8 @@ async def list_parcels(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(LandParcel).where(LandParcel.is_deleted == False)
-    count_query = select(func.count(LandParcel.id)).where(LandParcel.is_deleted == False)
+    query = select(LandParcel).where(not LandParcel.is_deleted)
+    count_query = select(func.count(LandParcel.id)).where(not LandParcel.is_deleted)
 
     if project_id:
         query = query.where(LandParcel.project_id == project_id)
@@ -156,7 +156,7 @@ async def get_parcel(
 ):
     result = await db.execute(
         select(LandParcel)
-        .where(LandParcel.id == parcel_id, LandParcel.is_deleted == False)
+        .where(LandParcel.id == parcel_id, not LandParcel.is_deleted)
         .options(
             selectinload(LandParcel.village),
             selectinload(LandParcel.district),
@@ -180,7 +180,7 @@ async def update_parcel(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(LandParcel).where(LandParcel.id == parcel_id, LandParcel.is_deleted == False)
+        select(LandParcel).where(LandParcel.id == parcel_id, not LandParcel.is_deleted)
     )
     parcel = result.scalar_one_or_none()
     if not parcel:

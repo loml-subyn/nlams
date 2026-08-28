@@ -34,7 +34,9 @@ class Settings(BaseSettings):
         "ML_MODEL_PATH",
         os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "ml", "artifacts", "land_nature_model.joblib",
+            "ml",
+            "artifacts",
+            "land_nature_model.joblib",
         ),
     )
     ML_MODEL_VERSION: str = "1.0.0"

@@ -64,8 +64,8 @@ async def list_projects(
     sort_by: str = "created_at",
     sort_dir: str = "desc",
 ) -> PaginatedProjects:
-    query = select(Project).where(Project.is_deleted == False)
-    count_query = select(func.count(Project.id)).where(Project.is_deleted == False)
+    query = select(Project).where(not Project.is_deleted)
+    count_query = select(func.count(Project.id)).where(not Project.is_deleted)
 
     # Role-based filtering
     role_name = current_user.role.name if current_user.role else ""
@@ -158,7 +158,7 @@ async def create_project(
 async def get_project_by_id(db: AsyncSession, project_id: uuid.UUID) -> Optional[ProjectResponse]:
     result = await db.execute(
         select(Project)
-        .where(Project.id == project_id, Project.is_deleted == False)
+        .where(Project.id == project_id, not Project.is_deleted)
         .options(
             selectinload(Project.ministry),
             selectinload(Project.category),
@@ -179,7 +179,7 @@ async def update_project(
     updated_by: uuid.UUID,
 ) -> Optional[ProjectResponse]:
     result = await db.execute(
-        select(Project).where(Project.id == project_id, Project.is_deleted == False)
+        select(Project).where(Project.id == project_id, not Project.is_deleted)
     )
     project = result.scalar_one_or_none()
     if not project:

@@ -134,4 +134,3 @@ class IngestResponse(BaseModel):
     party_rows_duplicate: int
     document_title: Optional[str] = None
     document_publish_date: Optional[str] = None
-

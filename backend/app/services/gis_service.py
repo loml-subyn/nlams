@@ -60,7 +60,7 @@ async def build_geojson_featurecollection(
 ) -> dict:
     query = (
         select(LandParcel)
-        .where(LandParcel.is_deleted == False)
+        .where(not LandParcel.is_deleted)
         .options(
             selectinload(LandParcel.village),
             selectinload(LandParcel.district),
@@ -85,7 +85,11 @@ async def build_geojson_featurecollection(
                 geom = json.loads(parcel.geom) if isinstance(parcel.geom, str) else parcel.geom
             except (json.JSONDecodeError, TypeError):
                 try:
-                    geom = ast.literal_eval(parcel.geom) if isinstance(parcel.geom, str) else parcel.geom
+                    geom = (
+                        ast.literal_eval(parcel.geom)
+                        if isinstance(parcel.geom, str)
+                        else parcel.geom
+                    )
                 except (ValueError, SyntaxError):
                     geom = None
         if geom:

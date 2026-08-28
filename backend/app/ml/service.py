@@ -74,7 +74,9 @@ class LandNatureModel:
             self._artifact = artifact
             logger.info(
                 "ML model %s v%s loaded from %s",
-                artifact["model_name"], artifact["model_version"], path,
+                artifact["model_name"],
+                artifact["model_version"],
+                path,
             )
             return self._artifact
 
@@ -129,7 +131,9 @@ class LandNatureModel:
         best = max(range(len(classes)), key=lambda i: probabilities[i])
         label = classes[best]
         score = float(probabilities[best])
-        government_p = float(probabilities[classes.index("government")]) if "government" in classes else None
+        government_p = (
+            float(probabilities[classes.index("government")]) if "government" in classes else None
+        )
 
         # Feature-level explanation from logistic coefficients is possible but
         # only meaningful in aggregate; report truthful factor summary instead.
@@ -156,7 +160,9 @@ class LandNatureModel:
             "prediction": {
                 "label": label,
                 "score": round(score, 4),
-                "government_probability": round(government_p, 4) if government_p is not None else None,
+                "government_probability": round(government_p, 4)
+                if government_p is not None
+                else None,
                 "confidence": None,  # model provides calibrated-ish probabilities only
                 "unit": "probability",
             },

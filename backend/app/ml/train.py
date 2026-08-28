@@ -68,7 +68,12 @@ def train(workbook_path: str, out_dir: str) -> dict:
     from sklearn.compose import ColumnTransformer
     from sklearn.impute import SimpleImputer
     from sklearn.linear_model import LogisticRegression
-    from sklearn.metrics import classification_report, f1_score, make_scorer, balanced_accuracy_score
+    from sklearn.metrics import (
+        classification_report,
+        f1_score,
+        make_scorer,
+        balanced_accuracy_score,
+    )
     from sklearn.model_selection import StratifiedKFold, cross_val_score
     from sklearn.pipeline import Pipeline
     from sklearn.preprocessing import OneHotEncoder, StandardScaler
@@ -85,9 +90,7 @@ def train(workbook_path: str, out_dir: str) -> dict:
             f"private={n_total - n_gov}). Refusing to train a meaningless model."
         )
 
-    numeric = Pipeline(
-        [("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())]
-    )
+    numeric = Pipeline([("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())])
     categorical = Pipeline(
         [
             ("impute", SimpleImputer(strategy="most_frequent")),
@@ -105,18 +108,14 @@ def train(workbook_path: str, out_dir: str) -> dict:
             ("preprocess", preprocess),
             (
                 "clf",
-                LogisticRegression(
-                    class_weight="balanced", max_iter=1000, random_state=42
-                ),
+                LogisticRegression(class_weight="balanced", max_iter=1000, random_state=42),
             ),
         ]
     )
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     cv_balanced = cross_val_score(model, X, y, cv=cv, scoring="balanced_accuracy")
-    cv_f1_gov = cross_val_score(
-        model, X, y, cv=cv, scoring="f1_macro"
-    )
+    cv_f1_gov = cross_val_score(model, X, y, cv=cv, scoring="f1_macro")
 
     model.fit(X, y)
 
